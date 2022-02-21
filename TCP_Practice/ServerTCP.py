@@ -55,8 +55,8 @@ except socket.error as e:
 print(f"Sent {bytes_sent} bytes")
 
 
-try:
-    sock.close()
-except socket.error as msg:
-    print("Socket close failed!")
-    sys.exit()
+# try:
+#     sock.close()
+# except socket.error as msg:
+#     print("Socket close failed!")
+#     sys.exit()

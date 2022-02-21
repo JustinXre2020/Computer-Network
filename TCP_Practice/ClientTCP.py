@@ -9,10 +9,10 @@ import sys, struct, time
 BUFFER = 2048
 
 
-
 HOST = sys.argv[1]
 PORT = sys.argv[2]
 message = sys.argv[3]
+
 
 try:
     sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
