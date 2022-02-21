@@ -1,6 +1,6 @@
 # Import any necessary libraries below
 import socket
-import sys, struct
+import sys
 
 
 
