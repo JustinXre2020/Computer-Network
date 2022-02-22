@@ -2,9 +2,9 @@
 # Programming Assignment 1 -  Starter Code
 # Name and Netid of each member:
 
-# Member 1: Justin Xiao
-# Member 2: Jerry Guo
-# Member 3: Tiancheng Shi
+# Member 1: Justin Xiao, xulongx2
+# Member 2: Jerry Guo, zemingg2
+# Member 3: Tiancheng Shi, ts15
 
 
 # Note: 
@@ -161,7 +161,7 @@ def part2 ():
         print("Client send checksum error!")
         sys.exit()
         
-    print("Client has successfully sent the message!")
+    print("The server has successfully received the message!")
 
 
     # Receive a confirmation number from the server

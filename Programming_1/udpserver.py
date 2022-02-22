@@ -2,9 +2,9 @@
 # Programming Assignment 1 -  Starter Code 
 # Name and Netid of each member:
 
-# Member 1: Justin Xiao
-# Member 2: Jerry Guo
-# Member 3: Tiancheng Shi
+# Member 1: Justin Xiao, xulongx2
+# Member 2: Jerry Guo, zemingg2
+# Member 3: Tiancheng Shi, ts15
 
 
 # Note: 
@@ -164,7 +164,6 @@ def part2 ():
     checksum_server = checksum(msg_client)
     print("Server's checksum: ", checksum_server)
 
-    print("The server has successfully received the message!")
 
     # Compare the 2 checksums
     if (checksum_client == checksum_server):
