@@ -24,16 +24,16 @@ To run/test the code:
 	   eg.  ssh zemingg2@student00.ischool.illinois.edu
 	          ssh zemingg2@student01.ischool.illinois.edu
 
-	4. For part 1, in the server command line window, type "python3 udpserver.py"
-	   eg.  python3 udpserver.py
+	4. For part 1, in the server command line window, type "python3 ./udpserver.py"
+	   eg.  python3 ./udpserver.py
 
-	5. Then in the client command line window, type "python3 udpclient.py"
-	   eg.  python3.udpclient.py
+	5. Then in the client command line window, type "python3 ./udpclient.py"
+	   eg.  python3 ./udpclient.py
 
-	6. For part 2, in the server command line window, type "python3 udpserver.py [port]"
-	   eg.  python3 udpserver.py 41002
+	6. For part 2, in the server command line window, type "python3 ./udpserver.py [port]"
+	   eg.  python3 ./udpserver.py 41002
 
-	7. In the client command line window, type "python3 udpclient.py [hostname] [port] [test message]"
+	7. In the client command line window, type "python3 ./udpclient.py [hostname] [port] [test message]"
 		Notice to not compile the client file in the server window! 
 		Also it can accept with any other random string.
-	   eg.  python3.udpclient.py student00.ischool.illinois.edu 41002 "Howdy World!"
+	   eg.  python3 ./udpclient.py student00.ischool.illinois.edu 41002 "Howdy World!"
