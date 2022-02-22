@@ -1,4 +1,4 @@
-# Files in the directory:
+Files in the directory:
 
 	1. pg1lib.py
  	    It contains some helper functions that help us establish communication between the server and the client.
@@ -11,7 +11,7 @@
 	3. udpclient.py
 	    It contains two functions that send messages to the server.
 
-#To run/test the code:
+To run/test the code:
 
 	1. Change the hostname and port in "udpserver.py" and "udpclient.py" to your own hostname and port, and save your change.
 
