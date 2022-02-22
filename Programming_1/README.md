@@ -1,17 +1,17 @@
-Files in the directory:
+# Files in the directory:
 
-	1. pg1lib.py
+	## 1. pg1lib.py
  	    It contains some helper functions that help us establish communication between the server and the client.
 		1. getPubKey()		Get the public key of server/client's.
 		2. encrypt(message, pubkey)	Encrypt the message with a public key.
 		3. decrypt(cipher)		Decrypt the message by a private key.
 		4. checksum(data)		Check the sum of the message received.
-	2. udpserver.py
+	## 2. udpserver.py
 	    It contains two functions that start the server and receive messages from the client.
-	3. udpclient.py
+	## 3. udpclient.py
 	    It contains two functions that send messages to the server.
 
-To run/test the code:
+# To run/test the code:
 
 	1. Change the hostname and port in "udpserver.py" and "udpclient.py" to your own hostname and port, and save your change.
 
