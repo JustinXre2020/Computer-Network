@@ -2,12 +2,11 @@
 
 # Contributors
 
-Jerry Guo 		    zemingg2
+	Justin Xiao     xulongx2
+	
+	Jerry Guo 	zemingg2
 
-Justin Xiao 		  xulongx2
-
-Tiancheng Shi 	ts15
-
+	Tiancheng Shi 	ts15
 
 
 # Files in the directory:
