@@ -72,8 +72,9 @@ def part1 ():
     # 2. send the converted acknowledgement to the client
 
     to_client = socket.htonl(1)
+    msg_toclient = to_client.to_bytes(4, byteorder='big')
     try:
-        sock.sendto(to_client.to_bytes(4, byteorder='big'), addr)
+        sock.sendto(msg_toclient, addr)
     except socket.error as e:
         print("Send error!")
         sys.exit()
