@@ -431,7 +431,7 @@ def part2 ():
             directory = dir.decode()
 
 
-            # Generate confirmation numbers
+            # Change directory
             target_directory = os.path.join(os.getcwd(), directory)
             if os.path.isdir(target_directory):
                 try:
