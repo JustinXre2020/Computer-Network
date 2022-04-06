@@ -141,7 +141,7 @@ def chatroom (args, clients):
         
     elif operation == "PM":
     
-    else:
+    elif operation == 'EX':
         sock.close()
         # Update the list of clients
         clients.remove(username)

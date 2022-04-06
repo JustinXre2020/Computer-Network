@@ -169,7 +169,7 @@ if __name__ == '__main__':
             
         elif operation == "PM":
             
-        else:
+        elif operation == 'EX':
             sock.close()
             print("The session has ended")
             break
