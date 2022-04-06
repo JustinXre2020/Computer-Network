@@ -81,10 +81,61 @@ if __name__ == '__main__':
     # Using while loop to make sure that we can go back to "prompt user for operation" state as we want
     while True:
         # TODO: Send username to the server and login/register the user
-        username = input("Please enter your operation: ")
+        username = input("Please enter your username: ")
         sock.send(sendint(len(username)))
         sock.send(username.encode())
 
+        # Receive server's response
+        try:
+            response = sock.recv(4)
+        except socket.error as e:
+            print("Receive size of operation error!")
+            sys.exit()
+
+
+        # Perform login/register
+        if response == 1:
+            # Prompt user to create a password
+            print('Your username has been successfully created!')
+            password = input("Now please create your password: ")
+            sock.send(sendint(len(password)))
+            sock.send(password.encode())
+
+            # Receive server's reponse
+            try:
+                reponse_size = sock.recv(4)
+            except socket.error as e:
+                print("Receive size of username error!")
+                sys.exit()
+            try:
+                reponse_msg = sock.recv(receiveint(reponse_size))
+            except socket.error as e:
+                print("Receive username error!")
+                sys.exit()
+
+            print(reponse_msg.decode())
+        else:
+            while True:
+                # Type in password
+                password = input("Please type in your password: ")
+                sock.send(sendint(len(password)))
+                sock.send(password.encode())
+
+                # Receive server's response on password
+                try:
+                    password_response = sock.recv(4)
+                except socket.error as e:
+                    print("Receive password response error!")
+                    sys.exit()
+                
+                # If it is 2, that means log in successfully 
+                if password_response == 2:
+                    break
+                else:
+                    print("Wrong password!")
+
+             # Inform client that the account has been logged in
+            print("You successfully log into your account!")
 
         # TODO: initiate a thread for receiving message
         
