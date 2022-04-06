@@ -62,15 +62,15 @@ def chatroom (args, clients):
     clients.append(username)
 
     with open(userinfo, "w") as f:
-        lines = f.readlines()
+        # Get the data from the file
+        lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
         nested_list = [line.strip().split(',') for line in lines]
         data_list = [data for list in nested_list for data in list]
-        if len(data_list == 0) or username not in data_list:
-            # Write down the username
-            f.write(username + ',')
 
-            # Inform user to create a password
-            sock.send(sendint(1))
+        # See if the username is in the file
+        if len(data_list == 0) or username not in data_list:
+            f.write(username + ',')             # Write down the username
+            sock.send(sendint(1))               # Inform user to create a password
 
             # Receive client's password
             try:
@@ -85,8 +85,7 @@ def chatroom (args, clients):
                 sys.exit()
             password = password_msg.decode()
 
-            # write down the password
-            f.write(password + '\n')
+            f.write(password + '\n')            # write down the password
 
             # Inform client that the account has been created!
             msg = "Your account has been successfully created!"
