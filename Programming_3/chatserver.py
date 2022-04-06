@@ -11,10 +11,13 @@
 
 # Import any necessary libraries below
 import socket, threading, sys, os
+from pg3lib import *
 
 # Any global variables
 BUFFER = 2048
 
+# Create the server public key 
+key = getPubKey()
 
 # Convert from int to byte
 def sendint(data):
@@ -38,9 +41,6 @@ def chatroom (args, clients):
     # Get the socket
     sock = args.get("sock")
 
-    # Set filename
-    userinfo = "userinfo.txt"
-
     # Receive client's username
     try:
         username_size = sock.recv(4)
@@ -55,20 +55,26 @@ def chatroom (args, clients):
         sys.exit()
     username = username_msg.decode()
 
+    # Set files for future_use
+    user_info = "userinfo.txt"
+    chat_history = f"{username}.txt"
 
-    userinfo_path = os.path.join(os.getcwd(), userinfo)         # generate userinfo path
+    userinfo_path = os.path.join(os.getcwd(), user_info)        # generate userinfo path
+    chat_history_path = os.path.join(os.getcwd(), chat_history)         # generate userinfo path
     mode = 'r+' if os.path.exists(userinfo_path) else 'w+'      # set mode (only read/write (r+) or create the file (w+))
-                                                                # based on the existance of userinfo
-    with open(userinfo_path, mode) as f:
+                                                                # based on the existance of userinfo     
+
+    with open(userinfo_path, mode) as f:                        # create user information file to store username and password
         # Get the data from the file
         lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
         nested_list = [line.strip().split(',') for line in lines]
         data_list = [data for list in nested_list for data in list]
 
         # See if the username is in the file
-        if len(data_list == 0) or username not in data_list:
+        if len(data_list == 0) or username not in data_list:        # Registration process
             f.write(username + ',')             # Write down the username
             sock.send(sendint(1))               # Inform user to create a password
+            sock.send(key)                      # Send server's public key to client
 
             # Receive client's password
             try:
@@ -81,7 +87,8 @@ def chatroom (args, clients):
             except socket.error as e:
                 print("Receive client's created password error!")
                 sys.exit()
-            password = password_msg.decode()
+            # decrypt the client's password
+            password = decrypt(password_msg)    
 
             f.write(password + '\n')            # write down the password
 
@@ -89,6 +96,10 @@ def chatroom (args, clients):
             msg = "Your account has been successfully created!"
             sock.send(sendint(len(msg)))
             sock.send(msg.encode())
+
+            # create chat history file for each user
+            with open(chat_history_path, mode) as f:                    
+                pass   
         else:
             # Inform user to type in the password
             sock.send(sendint(-1))
@@ -106,7 +117,8 @@ def chatroom (args, clients):
                 except socket.error as e:
                     print("Receive password error!")
                     sys.exit()
-                password = password_msg.decode()
+                # decrypt the client's password
+                password = decrypt(password_msg)       
 
                 # Check the password, if not in the file, inform it to the user
                 if password not in data_list:
@@ -119,6 +131,13 @@ def chatroom (args, clients):
 
     # Add the user to the list of clients
     clients.append(username)
+
+    # Receive client's public key
+    try:
+        client_key = sock.recv(BUFFER)
+    except socket.error as e:
+        print("Receive server's public key error!")
+        sys.exit()
 
 
     # Task2: use a loop to handle the operations (i.e., BM, PM, EX)
@@ -143,8 +162,11 @@ def chatroom (args, clients):
         # Perform based on user's command
         if operation == 'BM':
             
-        elif operation == "PM":
+        elif operation == 'PM':
         
+        elif operation == 'CH':
+
+
         elif operation == 'EX':
             sock.close()
             # Update the list of clients

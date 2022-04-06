@@ -13,10 +13,13 @@
 
 # Import any necessary libraries below
 import socket, threading, sys, os
+from pg3lib import *
 
 # Any global variables
 BUFFER =  2048
 
+# Create the server public key 
+key = getPubKey()
 
 # Convert from int to byte
 def sendint(data):
@@ -103,15 +106,21 @@ if __name__ == '__main__':
         sys.exit()
     response = receiveint(response_binary)
 
+    # Receive server's public key
+    try:
+        server_key = sock.recv(BUFFER)
+    except socket.error as e:
+        print("Receive server's public key error!")
+        sys.exit()
+
     # Perform login/register
     if response == 1:
-        # Prompt user to create a password
-        print('Your username has been successfully created!')
+        print('Your username has been successfully created!')   # Prompt user to create a password
         password = input("Now please create your password: ")
         sock.send(sendint(len(password)))
-        sock.send(password.encode())
+        sock.send(encrypt(server_key, password))                # encrypt the password using server's pubKey
 
-        # Receive server's reponse
+        # Receive and print server's reponse
         try:
             reponse_size = sock.recv(4)
         except socket.error as e:
@@ -122,14 +131,13 @@ if __name__ == '__main__':
         except socket.error as e:
             print("Receive server response error!")
             sys.exit()
-
         print(reponse_msg.decode())
     else:
         while True:
             # Type in password
             password = input("Please type in your password: ")
             sock.send(sendint(len(password)))
-            sock.send(password.encode())
+            sock.send(encrypt(server_key, password))
 
             # Receive server's response on password
             try:
@@ -148,15 +156,17 @@ if __name__ == '__main__':
             # Inform client that the account has been logged in
         print("You successfully log into your account!")
 
+     # Send client's public key to server
+    sock.send(key)
+
+
     # TODO: initiate a thread for receiving message
-    
     chat = threading.Thread(target=accept_messages, daemon=True)    # Daemon = True will release memory after use
     chat.start()
 
-    # TODO: use a loop to handle the operations (i.e., BM, PM, EX)
 
-    # Using while loop to make sure that we can go back to "prompt user for operation" state as we want
-    while True:
+    # TODO: use a loop to handle the operations (i.e., BM, PM, EX)
+    while True:         # Using while loop to make sure that we can go back to "prompt user for operation" state as we want
         # Prompt client to send operations
         operation = input("Please enter your operation (BM: Broadcast Messaging, PM: Private Messaging, EX: Exit): ")
         sock.send(sendint(len(operation)))
@@ -164,7 +174,7 @@ if __name__ == '__main__':
 
         # Perform based on client's command
         if operation == 'BM':
-            
+    
         elif operation == "PM":
             
         elif operation == 'EX':
