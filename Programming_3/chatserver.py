@@ -60,8 +60,8 @@ def chatroom (args, clients):
 
 
     userinfo_path = os.path.join(os.getcwd(), userinfo)         # generate userinfo path
-    mode = 'a+' if os.path.exists(userinfo_path) else 'w+'      # set mode based on the existance of userinfo
-
+    mode = 'a+' if os.path.exists(userinfo_path) else 'w+'      # set mode (append & read or write & read) 
+                                                                # based on the existance of userinfo
     with open(userinfo_path, mode) as f:
         # Get the data from the file
         lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
