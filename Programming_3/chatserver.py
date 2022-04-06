@@ -59,7 +59,10 @@ def chatroom (args, clients):
     username = username_msg.decode()
 
 
-    with open(userinfo, "w") as f:
+    userinfo_path = os.path.join(os.getcwd(), userinfo)         # generate userinfo path
+    mode = 'a+' if os.path.exists(userinfo_path) else 'w+'      # set mode based on the existance of userinfo
+
+    with open(userinfo_path, mode) as f:
         # Get the data from the file
         lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
         nested_list = [line.strip().split(',') for line in lines]
