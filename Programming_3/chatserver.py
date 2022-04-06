@@ -150,8 +150,6 @@ def chatroom (args, clients):
 
 
 
-
-
 if __name__ == '__main__':
     # TODO: Validate input arguments
    
