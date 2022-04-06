@@ -123,30 +123,33 @@ def chatroom (args, clients):
 
     # Task2: use a loop to handle the operations (i.e., BM, PM, EX)
     
-    # Receive client's operation
-    try:
-        operation_size = sock.recv(4)
-    except socket.error as e:
-        print("Receive size of username error!")
-        sys.exit()
-    try:
-        operation_msg = sock.recv(receiveint(operation_size))
-    except socket.error as e:
-        print("Receive username error!")
-        sys.exit()
-    operation = operation_msg.decode()
+    # Using while loop to make sure that we can go back to "prompt user for operation" state as we want
+    while True:
+        print("Waiting for operations from clients...")
+        # Receive client's operation
+        try:
+            operation_size = sock.recv(4)
+        except socket.error as e:
+            print("Receive size of username error!")
+            sys.exit()
+        try:
+            operation_msg = sock.recv(receiveint(operation_size))
+        except socket.error as e:
+            print("Receive username error!")
+            sys.exit()
+        operation = operation_msg.decode()
 
 
-    # Perform based on user's command
-    if operation == 'BM':
+        # Perform based on user's command
+        if operation == 'BM':
+            
+        elif operation == "PM":
         
-    elif operation == "PM":
-    
-    elif operation == 'EX':
-        sock.close()
-        # Update the list of clients
-        clients.remove(username)
-        return
+        elif operation == 'EX':
+            sock.close()
+            # Update the list of clients
+            clients.remove(username)
+            return
 
 
 
@@ -186,9 +189,8 @@ if __name__ == '__main__':
 
         # TODO: initiate a thread for the connected user
         args = {"sock" : conn}
-        chat = threading.Thread(target=chatroom, args=(args, clients))
+        chat = threading.Thread(target=chatroom, args=(args, clients), daemon=True)  # Daemon = True will release memory after use
         chat.start()
-        continue
         
         
                 

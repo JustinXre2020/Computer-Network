@@ -152,7 +152,7 @@ if __name__ == '__main__':
 
     # TODO: initiate a thread for receiving message
     
-    chat = threading.Thread(target=accept_messages)
+    chat = threading.Thread(target=accept_messages, daemon=True)    # Daemon = True will release memory after use
     chat.start()
 
     # TODO: use a loop to handle the operations (i.e., BM, PM, EX)
@@ -173,4 +173,5 @@ if __name__ == '__main__':
             sock.close()
             print("The session has ended")
             break
-
+        else:
+            print("Invalid!")
