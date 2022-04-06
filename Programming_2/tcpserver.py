@@ -269,8 +269,8 @@ def part2 ():
             except socket.error as e:
                 print("Receive filename error!")
                 sys.exit()
-            filename = file.decode()
-
+            filename_ = file.decode()
+            filename = os.path.join(os.getcwd(), filename_)  # find the path of the file
 
             # Check to see if the file exists in its local directory
             # If the file exists, server deletes the file and inform the client based on the result of deleting
