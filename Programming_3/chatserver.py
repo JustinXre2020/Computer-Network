@@ -12,7 +12,8 @@
 # Import any necessary libraries below
 import socket
 import threading
-import sys, os, struct
+import sys
+import os
 
 # Any global variables
 BUFFER = 2048
@@ -34,12 +35,14 @@ Args:
 Returns:
     None
 """
-def chatroom (args):
+def chatroom (args, clients):
     # Task1: login/register the user
 
     # Get the socket
     sock = args.get("sock")
 
+    # Set filename
+    userinfo = "userinfo.txt"
 
     # Receive client's username
     try:
@@ -55,17 +58,46 @@ def chatroom (args):
         sys.exit()
     username = username_msg.decode()
 
-    with open(filename, "w") as f:
-            lines = f.readlines()
-            nested_list = [line.strip().split(',') for line in lines]
-            data_list = [data for list in nested_list for data in list]
-            if len(data_list == 0) or username not in data_list:
-                # Write down the username
-                f.write(username + ',')
+    # Update the user to the list of clients
+    clients.append(username)
 
-                # Inform user to create a password
-                sock.send(sendint(1))
+    with open(userinfo, "w") as f:
+        lines = f.readlines()
+        nested_list = [line.strip().split(',') for line in lines]
+        data_list = [data for list in nested_list for data in list]
+        if len(data_list == 0) or username not in data_list:
+            # Write down the username
+            f.write(username + ',')
 
+            # Inform user to create a password
+            sock.send(sendint(1))
+
+            # Receive client's password
+            try:
+                password_size = sock.recv(4)
+            except socket.error as e:
+                print("Receive size of username error!")
+                sys.exit()
+            try:
+                password_msg = sock.recv(receiveint(password_size))
+            except socket.error as e:
+                print("Receive username error!")
+                sys.exit()
+            password = password_msg.decode()
+
+            # write down the password
+            f.write(password + '\n')
+
+            # Inform client that the account has been created!
+            msg = "Your account has been successfully created!"
+            sock.send(sendint(len(msg)))
+            sock.send(msg.encode())
+        else:
+            # Inform user to type in the password
+            sock.send(sendint(-1))
+
+            # If the password is wrong, go into the loop until client types in the correct password
+            while True:
                 # Receive client's password
                 try:
                     password_size = sock.recv(4)
@@ -79,43 +111,42 @@ def chatroom (args):
                     sys.exit()
                 password = password_msg.decode()
 
-                # write down the password
-                f.write(password + '\n')
+                # Check the password, if not in the file, inform it to the user
+                if password not in data_list:
+                    sock.send(sendint(-2))
+                else:
+                    break
 
-                # Inform client that the account has been created!
-                msg = "Your account has been successfully created!"
-                sock.send(sendint(len(msg)))
-                sock.send(msg.encode())
-            else:
-                # Inform user to type in the password
-                sock.send(sendint(-1))
-
-                # If the password is wrong, go into the loop until client types in the correct password
-                while True:
-                    # Receive client's password
-                    try:
-                        password_size = sock.recv(4)
-                    except socket.error as e:
-                        print("Receive size of username error!")
-                        sys.exit()
-                    try:
-                        password_msg = sock.recv(receiveint(password_size))
-                    except socket.error as e:
-                        print("Receive username error!")
-                        sys.exit()
-                    password = password_msg.decode()
-
-                    # Check the password, if not in the file, inform it to the user
-                    if password not in data_list:
-                        sock.send(sendint(-2))
-                    else:
-                        break
-
-                # Inform client that the account has been logged in
-                sock.send(sendint(2))
-                        
+            # Inform client that the account has been logged in
+            sock.send(sendint(2))
+                    
     # Task2: use a loop to handle the operations (i.e., BM, PM, EX)
     
+    # Receive client's operation
+    try:
+        operation_size = sock.recv(4)
+    except socket.error as e:
+        print("Receive size of username error!")
+        sys.exit()
+    try:
+        operation_msg = sock.recv(receiveint(operation_size))
+    except socket.error as e:
+        print("Receive username error!")
+        sys.exit()
+    operation = operation_msg.decode()
+
+
+    # Perform based on user's command
+    if operation == 'BM':
+        
+    elif operation == "PM":
+    
+    else:
+        sock.close()
+        # Update the list of clients
+        clients.remove(username)
+        return
+
 
 
 
@@ -124,8 +155,9 @@ def chatroom (args):
 if __name__ == '__main__':
     # TODO: Validate input arguments
    
-    filename = "./userinfo.txt"
     PORT = sys.argv[1]
+    # A list to record clients
+    clients = []
 
     # TODO: create a socket in UDP or TCP
     try:
@@ -147,7 +179,7 @@ if __name__ == '__main__':
         # TODO: handle any incoming connection with UDP or TCP
         sock.listen()
         try:
-            conn = sock.accept()
+            conn, addr = sock.accept()
         except socket.error as e:
             print("Nothing accepts.")
         print("Connection from client established")
@@ -155,7 +187,7 @@ if __name__ == '__main__':
 
         # TODO: initiate a thread for the connected user
         args = {"sock" : conn}
-        chat = threading.Thread(target=chatroom, args=(args,))
+        chat = threading.Thread(target=chatroom, args=(args, clients))
         chat.start()
         continue
         
