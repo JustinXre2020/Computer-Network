@@ -191,12 +191,3 @@ if __name__ == '__main__':
         args = {"sock" : conn}
         chat = threading.Thread(target=chatroom, args=(args, clients), daemon=True)  # Daemon = True will release memory after use
         chat.start()
-        
-        
-                
-       
-
-
-
-
-
