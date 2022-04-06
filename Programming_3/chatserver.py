@@ -77,12 +77,12 @@ def chatroom (args, clients):
             try:
                 password_size = sock.recv(4)
             except socket.error as e:
-                print("Receive size of username error!")
+                print("Receive size of created password error!")
                 sys.exit()
             try:
                 password_msg = sock.recv(receiveint(password_size))
             except socket.error as e:
-                print("Receive username error!")
+                print("Receive client's created password error!")
                 sys.exit()
             password = password_msg.decode()
 
@@ -102,12 +102,12 @@ def chatroom (args, clients):
                 try:
                     password_size = sock.recv(4)
                 except socket.error as e:
-                    print("Receive size of username error!")
+                    print("Receive size of password error!")
                     sys.exit()
                 try:
                     password_msg = sock.recv(receiveint(password_size))
                 except socket.error as e:
-                    print("Receive username error!")
+                    print("Receive password error!")
                     sys.exit()
                 password = password_msg.decode()
 
@@ -133,12 +133,12 @@ def chatroom (args, clients):
         try:
             operation_size = sock.recv(4)
         except socket.error as e:
-            print("Receive size of username error!")
+            print("Receive size of client operation error!")
             sys.exit()
         try:
             operation_msg = sock.recv(receiveint(operation_size))
         except socket.error as e:
-            print("Receive username error!")
+            print("Receive client operation error!")
             sys.exit()
         operation = operation_msg.decode()
 
