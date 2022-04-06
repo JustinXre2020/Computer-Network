@@ -58,8 +58,6 @@ def chatroom (args, clients):
         sys.exit()
     username = username_msg.decode()
 
-    # Update the user to the list of clients
-    clients.append(username)
 
     with open(userinfo, "w") as f:
         # Get the data from the file
@@ -118,7 +116,11 @@ def chatroom (args, clients):
 
             # Inform client that the account has been logged in
             sock.send(sendint(2))
-                    
+
+    # Add the user to the list of clients
+    clients.append(username)
+
+
     # Task2: use a loop to handle the operations (i.e., BM, PM, EX)
     
     # Receive client's operation
