@@ -10,10 +10,7 @@
 # This starter code is optional. Feel free to develop your own solution. 
 
 # Import any necessary libraries below
-import socket
-import threading
-import sys
-import os
+import socket, threading, sys, os
 
 # Any global variables
 BUFFER = 2048
