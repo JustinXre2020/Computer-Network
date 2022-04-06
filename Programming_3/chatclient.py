@@ -100,11 +100,11 @@ if __name__ == '__main__':
 
     # Receive server's response
     try:
-        response = sock.recv(4)
+        response_binary = sock.recv(4)
     except socket.error as e:
-        print("Receive size of operation error!")
+        print("Receive size of response error!")
         sys.exit()
-
+    response = receiveint(response_binary)
 
     # Perform login/register
     if response == 1:
@@ -118,12 +118,12 @@ if __name__ == '__main__':
         try:
             reponse_size = sock.recv(4)
         except socket.error as e:
-            print("Receive size of username error!")
+            print("Receive size of server response error!")
             sys.exit()
         try:
             reponse_msg = sock.recv(receiveint(reponse_size))
         except socket.error as e:
-            print("Receive username error!")
+            print("Receive server response error!")
             sys.exit()
 
         print(reponse_msg.decode())
@@ -140,9 +140,10 @@ if __name__ == '__main__':
             except socket.error as e:
                 print("Receive password response error!")
                 sys.exit()
-            
+            pas_response = receiveint(password_response)
+
             # If it is 2, that means log in successfully 
-            if password_response == 2:
+            if pas_response == 2:
                 break
             else:
                 print("Wrong password!")
