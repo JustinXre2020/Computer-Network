@@ -175,4 +175,4 @@ if __name__ == '__main__':
             print("The session has ended")
             break
         else:
-            print("Invalid!")
+            print("Invalid command!")
