@@ -55,12 +55,11 @@ def chatroom (args, clients):
         sys.exit()
     username = username_msg.decode()
 
-    # Set files for future_use
+    # Set up files for future_use
     user_info = "userinfo.txt"
     chat_history = f"{username}.txt"
 
     userinfo_path = os.path.join(os.getcwd(), user_info)        # generate userinfo path
-    chat_history_path = os.path.join(os.getcwd(), chat_history)         # generate userinfo path
     mode = 'r+' if os.path.exists(userinfo_path) else 'w+'      # set mode (only read/write (r+) or create the file (w+))
                                                                 # based on the existance of userinfo     
 
@@ -97,6 +96,8 @@ def chatroom (args, clients):
             sock.send(sendint(len(msg)))
             sock.send(msg.encode())
 
+            # generate userinfo path
+            chat_history_path = os.path.join(os.getcwd(), chat_history)        
             # create chat history file for each user
             with open(chat_history_path, mode) as f:                    
                 pass   
@@ -141,8 +142,6 @@ def chatroom (args, clients):
 
 
     # Task2: use a loop to handle the operations (i.e., BM, PM, EX)
-    
-    # Using while loop to make sure that we can go back to "prompt user for operation" state as we want
     while True:
         print("Waiting for operations from clients...")
         # Receive client's operation
@@ -161,12 +160,21 @@ def chatroom (args, clients):
 
         # Perform based on user's command
         if operation == 'BM':
-            
+            print()
+
+
         elif operation == 'PM':
-        
-        elif operation == 'CH':
+            print()
 
 
+        elif operation == 'CH':  
+            with open(chat_history_path, 'rb') as f:     # read file content
+                while True:
+                    bytes_read = f.read(BUFFER)          # read the bytes from the file
+                    if not bytes_read:
+                        break                            # file transmitting is done
+                    sock.sendall(bytes_read)  
+            continue
         elif operation == 'EX':
             sock.close()
             # Update the list of clients

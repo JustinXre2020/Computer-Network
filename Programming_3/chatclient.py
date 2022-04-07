@@ -12,6 +12,8 @@
 
 
 # Import any necessary libraries below
+from ast import While
+from pickle import TRUE
 import socket, threading, sys, os
 from pg3lib import *
 
@@ -166,20 +168,38 @@ if __name__ == '__main__':
 
 
     # TODO: use a loop to handle the operations (i.e., BM, PM, EX)
-    while True:         # Using while loop to make sure that we can go back to "prompt user for operation" state as we want
+    while True:         
         # Prompt client to send operations
-        operation = input("Please enter your operation (BM: Broadcast Messaging, PM: Private Messaging, EX: Exit): ")
+        operation = input("Please enter your operation (BM: Broadcast Messaging, PM: Private Messaging, CH: Chat History, EX: Exit): ")
         sock.send(sendint(len(operation)))
         sock.send(operation.encode())
 
         # Perform based on client's command
         if operation == 'BM':
-    
-        elif operation == "PM":
-            
+            print()
+
+
+        elif operation == 'PM':
+            print()
+
+
         elif operation == 'EX':
             sock.close()
             print("The session has ended")
             break
+        elif operation == 'CH':
+            file_path = os.path.join(os.getcwd(), f"{username}.txt")
+            with open(file_path, "w") as f:            # write data to the file
+                while True:
+                    data = sock.recv(BUFFER)
+                    if not data:
+                        break
+                    f.write(data.decode())
+            
+            with open(file_path, 'r') as f:             # get and print data from the file
+                lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
+                for line in lines:
+                    print(line)
+            continue
         else:
             print("Invalid command!")
