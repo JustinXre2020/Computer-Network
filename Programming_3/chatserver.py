@@ -177,7 +177,8 @@ def chatroom (sockets, clients, address):
             continue
         elif operation == 'EX':
             sock.close()
-            # Update the list of clients
+            # Update the list of clients and the dictionary of sockets
+            print(f"Client {sockets.pop(addr)} has logged out!")
             clients.remove(username)
             return
 
