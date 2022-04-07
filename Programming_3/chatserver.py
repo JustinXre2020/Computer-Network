@@ -35,11 +35,11 @@ Args:
 Returns:
     None
 """
-def chatroom (args, clients):
+def chatroom (args, clients, addr):
     # Task1: login/register the user
 
     # Get the socket
-    sock = args.get("sock")
+    sock = args.get(addr)
 
     # Receive client's username
     try:
@@ -205,6 +205,9 @@ if __name__ == '__main__':
         print('Failed to bind socket.')
         sys.exit()
     
+    # create a dictionary to keep track of conn sockets
+    sockets = {}
+    
     while True:
         print(f"Waiting for connections on port {PORT}...")
 
@@ -218,6 +221,6 @@ if __name__ == '__main__':
 
 
         # TODO: initiate a thread for the connected user
-        args = {"sock" : conn}
-        chat = threading.Thread(target=chatroom, args=(args, clients), daemon=True)  # Daemon = True will release memory after use
+        sockets[addr].append(conn)
+        chat = threading.Thread(target=chatroom, args=(sockets, clients, addr), daemon=True)  # Daemon = True will release memory after use
         chat.start()
