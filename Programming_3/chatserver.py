@@ -221,6 +221,6 @@ if __name__ == '__main__':
 
 
         # TODO: initiate a thread for the connected user
-        sockets[addr].append(conn)
+        sockets.update({addr : conn})
         chat = threading.Thread(target=chatroom, args=(sockets, clients, addr), daemon=True)  # daemon = True will release memory after use
         chat.start()
