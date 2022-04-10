@@ -278,7 +278,7 @@ if __name__ == '__main__':
             with open(file_path, 'r') as f:             # get and print data from the file
                 lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
                 for line in lines:
-                    print(line)
+                    print(line + '\n')
             continue
         else:
             print("Invalid command!")
