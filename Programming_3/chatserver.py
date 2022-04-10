@@ -131,7 +131,7 @@ def chatroom (sockets, clients, address):
             sock.send(sendint(2))
 
     # Add the user to the list of clients
-    clients.append(username)
+    clients.update({username : address})
 
     # Receive client's public key
     try:
@@ -160,11 +160,66 @@ def chatroom (sockets, clients, address):
 
         # Perform based on user's command
         if operation == 'BM':
-            print()
+            sock.send(sendint(1))                                  #send confirmation message
+            try:
+                msg_size = sock.recv(4)
+            except socket.error as e:
+                print("Receive size of client's message error!")
+                sys.exit()                                         
+            try:
+                msg = sock.recv(receiveint(msg_size))              #receive the message that needed to be broadcast
+            except socket.error as e:
+                print("Receive client message error!")              
+                sys.exit()
+            msg = msg.decode()
+            sock.send(sendint(2))
+            for i in sockets.keys():                                #loop over all the clients active
+                if i != address:                                    #except the sender client itself
+                    sockets.get(i).send(sendint(len(msg)))
+                    sockets.get(i).send(msg.encode())               #broadcast the message
+            continue
+
 
 
         elif operation == 'PM':
-            print()
+            online_clients = " ".join(clients.keys())
+            sock.send(sendint(len(online_clients)))
+            sock.send(online_clients.encode())
+            try:
+                target_client_size = sock.recv(4)
+            except socket.error as e:
+                print("Receive size of client's user name length error!")
+                sys.exit()                                         
+            try:
+                target_client = sock.recv(receiveint(target_client_size))              #receive the message that needed to be broadcast
+            except socket.error as e:
+                print("Receive target client's user name error!")              
+                sys.exit()
+            target_client = target_client.decode()
+            try:
+                msg_size = sock.recv(4)
+            except socket.error as e:
+                print("Receive size of client's message error!")
+                sys.exit()                                         
+            try:
+                msg = sock.recv(receiveint(msg_size))              #receive the message that needed to be privately sent
+            except socket.error as e:
+                print("Receive client message error!")              
+                sys.exit()
+            msg = msg.decode()
+
+            if target_client in clients.keys():
+                sockets.get(clients.get(target_client)).send(sendint(len(msg)))
+                sockets.get(clients.get(target_client)).send(msg.encode())
+                sock.send(sendint(1))
+            else:
+                sock.send(sendint(0))
+                
+            continue
+            
+
+
+
 
 
         elif operation == 'CH':  
@@ -190,7 +245,9 @@ if __name__ == '__main__':
    
     PORT = sys.argv[1]
     # A list to record clients
-    clients = []
+    clients = {}
+    # create a dictionary to keep track of conn sockets
+    sockets = {}
 
     # TODO: create a socket in UDP or TCP
     try:
@@ -206,8 +263,6 @@ if __name__ == '__main__':
         print('Failed to bind socket.')
         sys.exit()
     
-    # create a dictionary to keep track of conn sockets
-    sockets = {}
 
     while True:
         print(f"Waiting for connections on port {PORT}...")

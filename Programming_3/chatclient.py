@@ -174,11 +174,72 @@ if __name__ == '__main__':
 
         # Perform based on client's command
         if operation == 'BM':
-            print()
+            try:
+                bm_ack = sock.recv(4)
+            except socket.error as e:
+                print("Receive message broadcasting response error!")
+                sys.exit()
+            bm_response = receiveint(bm_ack)
+
+            if bm_response == 1:                                            #receive an acknowledgement from the server                             
+                message_broadcasting = input("Enter the public message:")   
+                sock.send(sendint(len(message_broadcasting)))               
+                sock.send(message_broadcasting.encode())                    #send the message to the server
+                try:
+                    server_receive_ack = sock.recv(4)
+                except socket.error as e:
+                    print("Server receiving broadcasting message error!")
+                    sys.exit()
+                server_receiving_msg_response = receiveint(server_receive_ack)  
+                if server_receiving_msg_response == 2:                       #verify whether the server has received the message
+                    print("Public message sent.")
+                    continue
+            else:
+                print("Cannot connect with the server.")
+                continue
+
 
 
         elif operation == 'PM':
-            print()
+            try:
+                client_number = sock.recv(4)
+            except socket.error as e:
+                print("Receive size of client number error!")
+                sys.exit()                                         
+            try:
+                client = sock.recv(receiveint(client_number))              #receive the message that needed to be broadcast
+            except socket.error as e:
+                print("Receive client message error!")              
+                sys.exit()
+            client = client.decode().split()
+            print("Peers Online: \n")
+            for i in client:
+                print(i+'\n')
+            
+            target_client = input("Peer to message: ")          #choose which client we want to send private message to
+            msg = input("Enter the private mesage: ")           #the content of private message
+
+            sock.send(sendint(len(target_client)))
+            sock.send(target_client.encode())
+
+            sock.send(sendint(len(msg)))
+            sock.send(msg.encode())
+
+            try:
+                pm_ack = sock.recv(4)
+            except socket.error as e:
+                print("Receive message private messaging response error!")
+                sys.exit()
+            pm_response = receiveint(pm_ack)
+
+            if pm_response == 1:
+                print("Private message has been sent.")
+            elif pm_response == 0:
+                print("Target client is not online, failed to send the message.")
+
+
+        
+            
 
 
         elif operation == 'EX':
