@@ -11,6 +11,7 @@
 
 # Import any necessary libraries below
 import socket, threading, sys, os
+from datetime import datetime
 from pg3lib import *
 
 # Any global variables
@@ -27,6 +28,13 @@ def sendint(data):
 def receiveint(data):
     return int.from_bytes(data, byteorder='big', signed=True)
 
+# Get key based on value from a dictionary
+def get_key(val, my_dict):
+    for key, value in my_dict.items():
+         if val == value:
+             return key
+    return "The client doesn't exist!"
+
 
 """
 The thread target fuction to handle the requests by a user after a socket connection is established.
@@ -40,6 +48,9 @@ def chatroom (sockets, clients, address):
 
     # Get the socket
     sock = sockets.get(address)
+
+    # Create a dict to hold public keys from clients
+    client_keys = {}
 
     # Receive client's username
     try:
@@ -59,21 +70,22 @@ def chatroom (sockets, clients, address):
     user_info = "userinfo.txt"
     chat_history = f"{username}.txt"
 
-    userinfo_path = os.path.join(os.getcwd(), user_info)        # generate userinfo path
-    mode = 'r+' if os.path.exists(userinfo_path) else 'w+'      # set mode (only read/write (r+) or create the file (w+))
-                                                                # based on the existance of userinfo     
+    userinfo_path = os.path.join(os.getcwd(), user_info)            # generate userinfo path
+    chat_history_path = os.path.join(os.getcwd(), chat_history)     # generate chat history path
+    mode = 'r+' if os.path.exists(userinfo_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
+                                                                    # based on the existance of userinfo     
 
-    with open(userinfo_path, mode) as f:                        # create user information file to store username and password
+    with open(userinfo_path, mode) as f:                            # create user information file to store username and password
         # Get the data from the file
-        lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
+        lines = f.readlines()                                       # Example lines: ["Ann, 12345\n", "John, 54231\n"]
         nested_list = [line.strip().split(',') for line in lines]
         data_list = [data for list in nested_list for data in list]
 
         # See if the username is in the file
         if len(data_list == 0) or username not in data_list:        # Registration process
-            f.write(username + ',')             # Write down the username
-            sock.send(sendint(1))               # Inform user to create a password
-            sock.send(key)                      # Send server's public key to client
+            f.write(username + ',')                                 # Write down the username
+            sock.send(sendint(1))                                   # Inform user to create a password
+            sock.send(key)                                          # Send server's public key to client
 
             # Receive client's password
             try:
@@ -95,9 +107,7 @@ def chatroom (sockets, clients, address):
             msg = "Your account has been successfully created!"
             sock.send(sendint(len(msg)))
             sock.send(msg.encode())
-
-            # generate userinfo path
-            chat_history_path = os.path.join(os.getcwd(), chat_history)        
+   
             # create chat history file for each user
             with open(chat_history_path, mode) as f:                    
                 pass   
@@ -139,7 +149,7 @@ def chatroom (sockets, clients, address):
     except socket.error as e:
         print("Receive server's public key error!")
         sys.exit()
-
+    client_keys.update({username : client_key})
 
     # Task2: use a loop to handle the operations (i.e., BM, PM, EX)
     while True:
@@ -160,26 +170,27 @@ def chatroom (sockets, clients, address):
 
         # Perform based on user's command
         if operation == 'BM':
-            sock.send(sendint(1))                                  #send confirmation message
+            sock.send(sendint(1))                                  # send confirmation message
             try:
                 msg_size = sock.recv(4)
             except socket.error as e:
                 print("Receive size of client's message error!")
                 sys.exit()                                         
             try:
-                msg = sock.recv(receiveint(msg_size))              #receive the message that needed to be broadcast
+                msg = sock.recv(receiveint(msg_size))              # receive the message that needed to be broadcast
             except socket.error as e:
                 print("Receive client message error!")              
                 sys.exit()
             msg = msg.decode()
-            sock.send(sendint(2))
-            for i in sockets.keys():                                #loop over all the clients active
-                if i != address:                                    #except the sender client itself
+            for i in sockets.keys():                               # loop over all the client sockets
+                if i != address:                                   # except the sender client itself
+                    sockets.get(i).send("BM".encode())             # tell the type of the message
                     sockets.get(i).send(sendint(len(msg)))
-                    sockets.get(i).send(msg.encode())               #broadcast the message
+                    sockets.get(i).send(msg.encode())              # broadcast the message
+                    with open(chat_history_path, mode) as f:       # record the chat message on the server
+                        f.write(f"{datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg}" + '\n')
+            sock.send(sendint(2))                                  # send confirmation to the client
             continue
-
-
 
         elif operation == 'PM':
             online_clients = " ".join(clients.keys())
@@ -191,37 +202,39 @@ def chatroom (sockets, clients, address):
                 print("Receive size of client's user name length error!")
                 sys.exit()                                         
             try:
-                target_client = sock.recv(receiveint(target_client_size))              #receive the message that needed to be broadcast
+                target_client = sock.recv(receiveint(target_client_size))               # receive the message that needed to be broadcast
             except socket.error as e:
                 print("Receive target client's user name error!")              
                 sys.exit()
             target_client = target_client.decode()
+
+            target_key = client_keys.get(target_client)
+            sock.send(len(target_key))
+            sock.send(target_key)                                                       # send the public key of the target client
+
             try:
                 msg_size = sock.recv(4)
             except socket.error as e:
                 print("Receive size of client's message error!")
                 sys.exit()                                         
             try:
-                msg = sock.recv(receiveint(msg_size))              #receive the message that needed to be privately sent
+                msg_encrypted = sock.recv(receiveint(msg_size))                         # receive the message that needed to be privately sent
             except socket.error as e:
                 print("Receive client message error!")              
                 sys.exit()
-            msg = msg.decode()
 
             if target_client in clients.keys():
-                sockets.get(clients.get(target_client)).send(sendint(len(msg)))
-                sockets.get(clients.get(target_client)).send(msg.encode())
+                target_client_sock = sockets.get(clients.get(target_client))            # find the specific socket
+                target_client_sock.send("PM".encode())                                  # tell the type of the message
+                target_client_sock.send(sendint(len(msg_encrypted)))
+                target_client_sock.send(msg_encrypted)
+                with open(chat_history_path, mode) as f:                                # record the chat message on the server
+                    f.write(f"{datetime.now()}, PM, {get_key(address, clients)} sends {get_key(target_client, clients)}: {msg_encrypted}" + '\n')
                 sock.send(sendint(1))
             else:
-                sock.send(sendint(0))
-                
+                sock.send(sendint(0))      
             continue
             
-
-
-
-
-
         elif operation == 'CH':  
             with open(chat_history_path, 'rb') as f:     # read file content
                 while True:
@@ -233,8 +246,8 @@ def chatroom (sockets, clients, address):
         elif operation == 'EX':
             sock.close()
             # Update the list of clients and the dictionary of sockets
-            print(f"{username} from {sockets.pop(address)} has logged out!")
-            clients.remove(username)
+            sockets.pop(address)
+            print(f"{username} from {clients.pop(username)} has logged out!")
             return
 
 
