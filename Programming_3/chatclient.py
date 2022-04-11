@@ -52,36 +52,36 @@ def accept_messages():
         try:
             type = sock.recv(2)
         except socket.error as e:
-            print("Receive size of operation error!")
+            print("Receive size of operation error!", flush=True)
             sys.exit()
 
         # Try to receive messages
         try:
             msg_length = sock.recv(4)
         except socket.error as e:
-            print("Receive size of operation error!")
+            print("Receive size of operation error!", flush=True)
             sys.exit()
         try:
             msg = sock.recv(msg_length)
         except socket.error as e:
-            print("Receive size of operation error!")
+            print("Receive size of operation error!", flush=True)
             sys.exit()
 
         if type.decode() == "BM":
             # Check if the message is an int 
             try:
                 message = receiveint(msg)
-                print(f"Received a message: {message}")
+                print(f"Received a public message: {message}", flush = True)
             except TypeError as e:
-                print(f"Received a message: {msg.decode()}")
+                print(f"Received a public message: {msg.decode()}", flush = True)
         else:
             # Check if the message is an int 
             msg = decrypt(msg)
             try:
                 message = receiveint(msg)
-                print(f"Received a message: {message}")
+                print(f"Received a private message: {message}", flush = True)
             except TypeError as e:
-                print(f"Received a message: {msg.decode()}")
+                print(f"Received a private message: {msg.decode()}", flush = True)
 
 
 
@@ -272,22 +272,26 @@ if __name__ == '__main__':
             continue
 
         elif operation == 'CH':
-            file_path = os.path.join(os.getcwd(), f"{username}.txt")
-            with open(file_path, "w") as f:            # write data to the file
-                while True:
-                    data = sock.recv(BUFFER)
-                    if not data:
-                        break
-                    f.write(data.decode())
+            # file_path = os.path.join(os.getcwd(), f"{username}.txt")
+            # with open(file_path, "w") as f:            # write data to the file
+            chat_his = []
+            while True:
+                data = sock.recv(BUFFER)
+                if not data:
+                    break
+                chat_his.append(data.decode())
             
-            with open(file_path, 'r') as f:             # get and print data from the file
-                lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
-                for line in lines:
-                    print(line + '\n')
+            for i in chat_his:
+                print(i)
             continue
-
+            # with open(file_path, 'r') as f:             # get and print data from the file
+            #     lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
+            #     for line in lines:
+            #         print(line + '\n')
+            
         elif operation == 'EX':
             openThread = False
+            chat.join()
             sock.close()
             print("The session has ended")
             break
