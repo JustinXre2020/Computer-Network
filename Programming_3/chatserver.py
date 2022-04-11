@@ -10,7 +10,10 @@
 # This starter code is optional. Feel free to develop your own solution. 
 
 # Import any necessary libraries below
-import socket, threading, sys, os
+import socket
+import threading 
+import sys
+import os
 from datetime import datetime
 from pg3lib import *
 
@@ -33,7 +36,7 @@ def get_key(val, my_dict):
     for key, value in my_dict.items():
          if val == value:
              return key
-    return "The client doesn't exist!"
+    return "Unknown client"
 
 
 """
@@ -228,8 +231,8 @@ def chatroom (sockets, clients, address):
                 target_client_sock.send("PM".encode())                                  # tell the type of the message
                 target_client_sock.send(sendint(len(msg_encrypted)))
                 target_client_sock.send(msg_encrypted)
-                with open(chat_history_path, mode) as f:                                # record the chat message on the server
-                    f.write(f"{datetime.now()}, PM, {get_key(address, clients)} sends {get_key(target_client, clients)}: {msg_encrypted}" + '\n')
+                # with open(chat_history_path, mode) as f:                                # record the chat message on the server
+                #     f.write(f"{datetime.now()}, PM, {get_key(address, clients)} sends {get_key(target_client, clients)}: {msg_encrypted}" + '\n')
                 sock.send(sendint(1))
             else:
                 sock.send(sendint(0))      

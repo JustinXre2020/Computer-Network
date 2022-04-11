@@ -6,17 +6,20 @@
 # Member 3: 
 
 
-
 # Note: 
 # This starter code is optional. Feel free to develop your own solution. 
 
 
 # Import any necessary libraries below
-import socket, threading, sys, os
+import socket
+import threading 
+import sys
+import os
 from pg3lib import *
 
 # Any global variables
 BUFFER =  2048
+openThread = True
 
 # Create the server public key 
 key = getPubKey()
@@ -40,40 +43,45 @@ Returns:
 Hint: you can use the first character of the message to distinguish different types of message
 """
 
-def accept_messages():
-    # Try to receive messages type
-    try:
-        type = sock.recv(2)
-    except socket.error as e:
-        print("Receive size of operation error!")
-        sys.exit()
-
-    # Try to receive messages
-    try:
-        msg_length = sock.recv(4)
-    except socket.error as e:
-        print("Receive size of operation error!")
-        sys.exit()
-    try:
-        msg = sock.recv(msg_length)
-    except socket.error as e:
-        print("Receive size of operation error!")
-        sys.exit()
-
-    if type.decode() == "BM":
-        # Check if the message is an int 
+def accept_messages(): 
+    while True:
+        # should thread be closed
+        if openThread == False:
+            break
+        # Try to receive messages type
         try:
-            message = receiveint(msg)
-            print(f"Received a message: {message}")
-        except TypeError as e:
-            print(f"Received a message: {msg.decode()}")
-    else:
-        # Check if the message is an int 
+            type = sock.recv(2)
+        except socket.error as e:
+            print("Receive size of operation error!")
+            sys.exit()
+
+        # Try to receive messages
         try:
-            message = receiveint(msg)
-            print(f"Received a message: {message}")
-        except TypeError as e:
-            print(f"Received a message: {decrypt(message)}")
+            msg_length = sock.recv(4)
+        except socket.error as e:
+            print("Receive size of operation error!")
+            sys.exit()
+        try:
+            msg = sock.recv(msg_length)
+        except socket.error as e:
+            print("Receive size of operation error!")
+            sys.exit()
+
+        if type.decode() == "BM":
+            # Check if the message is an int 
+            try:
+                message = receiveint(msg)
+                print(f"Received a message: {message}")
+            except TypeError as e:
+                print(f"Received a message: {msg.decode()}")
+        else:
+            # Check if the message is an int 
+            msg = decrypt(msg)
+            try:
+                message = receiveint(msg)
+                print(f"Received a message: {message}")
+            except TypeError as e:
+                print(f"Received a message: {msg.decode()}")
 
 
 
@@ -136,7 +144,7 @@ if __name__ == '__main__':
         print('Your username has been successfully created!')   # Prompt user to create a password
         password = input("Now please create your password: ")
         sock.send(sendint(len(password)))
-        sock.send(encrypt(server_key, password))                # encrypt the password using server's pubKey
+        sock.send(encrypt(password.encode(), server_key))                # encrypt the password using server's pubKey
 
         # Receive and print server's reponse
         try:
@@ -155,7 +163,7 @@ if __name__ == '__main__':
             # Type in password
             password = input("Please type in your password: ")
             sock.send(sendint(len(password)))
-            sock.send(encrypt(server_key, password))
+            sock.send(encrypt(password.encode(), server_key))
 
             # Receive server's response on password
             try:
@@ -213,7 +221,8 @@ if __name__ == '__main__':
                     print("Public message sent.")
             else:
                 print("Cannot connect with the server.")
-            continue                                                         
+            continue 
+                                                                
         elif operation == 'PM':
             try:
                 client_number = sock.recv(4)
@@ -247,7 +256,7 @@ if __name__ == '__main__':
 
             msg = input("Enter the private mesage: ")           # the content of private message
             sock.send(sendint(len(msg)))
-            sock.send(encrypt(key, msg))
+            sock.send(encrypt(msg.encode(), key))
 
             try:
                 pm_ack = sock.recv(4)
@@ -262,10 +271,6 @@ if __name__ == '__main__':
                 print("Target client is not online, failed to send the message!")
             continue
 
-        elif operation == 'EX':
-            sock.close()
-            print("The session has ended")
-            break
         elif operation == 'CH':
             file_path = os.path.join(os.getcwd(), f"{username}.txt")
             with open(file_path, "w") as f:            # write data to the file
@@ -280,5 +285,11 @@ if __name__ == '__main__':
                 for line in lines:
                     print(line + '\n')
             continue
+
+        elif operation == 'EX':
+            openThread = False
+            sock.close()
+            print("The session has ended")
+            break
         else:
             print("Invalid command!")
