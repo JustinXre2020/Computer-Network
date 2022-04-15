@@ -22,6 +22,4 @@
 # ss = " ".join(l)
 
 # print(ss)
-# print(l)
-from pg3lib import *
-print(getPubKey())
+print(1400 % 232)
