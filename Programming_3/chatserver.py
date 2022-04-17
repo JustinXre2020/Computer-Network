@@ -190,7 +190,7 @@ def chatroom (sockets, clients, address, client_keys):
 
                     mode = 'r+' if os.path.exists(chat_history_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
                     with open(chat_history_path, mode) as f:       # record the chat message on the server
-                        f.write(f"{datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg}" + '\n')
+                        f.write(f"At {datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg}" + '\n')
             sock.send(sendint(2))                                  # send confirmation to the client
             continue
 
@@ -241,9 +241,13 @@ def chatroom (sockets, clients, address, client_keys):
             
         elif operation == 'CH':  
             with open(chat_history_path, 'rb') as f:     # read file content
-                reads = f.readlines()          # read the bytes from the file
-                for read in reads:                 
-                    sock.sendall(read)  
+                # reads = f.readlines()          # read the bytes from the file
+                # for read in reads:
+                # while True:
+                data = f.read(BUFFER)
+                if not data:
+                    break                 
+                sock.sendall(data)  
             continue
 
         elif operation == 'EX':

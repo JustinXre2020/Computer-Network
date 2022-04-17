@@ -71,10 +71,10 @@ def accept_messages():
                 sys.exit()
 
             if type == "BM":
-                print(f"\n**** Received a public message ****: {msg.decode()}", flush = True)
+                print(f"\n**** Received a public message ****: {msg.decode()}")
             else:
                 msg_encrypt = decrypt(msg)
-                print(f"\n**** Received a private message ****: {msg_encrypt.decode()}", flush = True)
+                print(f"\n**** Received a private message ****: {msg_encrypt.decode()}")
 
 
 
@@ -271,9 +271,6 @@ if __name__ == '__main__':
                     break
                 f.write(data.decode())
             
-            # for i in chat_his:
-            #     print(i)
-            # continue
             with open(file_path, 'r') as f:             # get and print data from the file
                 lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
                 for line in lines:
