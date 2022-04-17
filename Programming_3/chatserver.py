@@ -149,7 +149,9 @@ def chatroom (sockets, clients, address, client_keys):
     except socket.error as e:
         print("Receive server's public key error!")
         sys.exit()
+
     client_keys.update({username : client_key})
+
 
     # Task2: use a loop to handle the operations (i.e., BM, PM, EX)
     while True:
@@ -181,22 +183,23 @@ def chatroom (sockets, clients, address, client_keys):
             except socket.error as e:
                 print("Receive client message error!")              
                 sys.exit()
-            msg = msg.decode()
+            # msg = msg.decode()
             for i in sockets.keys():                               # loop over all the client sockets
                 if i != address:                                   # except the sender client itself
                     sockets.get(i).send("BM".encode())             # tell the type of the message
-                    sockets.get(i).send(sendint(len(msg)))
-                    sockets.get(i).send(msg.encode())              # broadcast the message
+                    sockets.get(i).send(msg_size)
+                    sockets.get(i).send(msg)                       # broadcast the message
 
                     mode = 'r+' if os.path.exists(chat_history_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
                     with open(chat_history_path, mode) as f:       # record the chat message on the server
-                        f.write(f"At {datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg}" + '\n')
+                        f.write(f"At {datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg.decode()}" + '\n')
             sock.send(sendint(2))                                  # send confirmation to the client
             continue
 
         elif operation == 'PM':
-            other_clients = clients
-            other_clients.pop(get_key(address, clients))                                # remove the current user
+            # remove the current user
+            other_clients = {item[0] : item[1] for item in clients.items() if item[0] != username} 
+                                 
             online_clients = " ".join(other_clients.keys())                             # from the list of users 
             sock.send(sendint(len(online_clients)))
             sock.send(online_clients.encode())                                          # send the list as a string
@@ -227,27 +230,27 @@ def chatroom (sockets, clients, address, client_keys):
                 print("Receive client message error!")              
                 sys.exit()
 
-            if target_client in clients.keys():
-                target_client_sock = sockets.get(clients.get(target_client))            # find the specific socket
+            if target_client in online_clients.keys():
+                target_client_sock = sockets.get(online_clients.get(target_client))            # find the specific socket
                 target_client_sock.send("PM".encode())                                  # tell the type of the message
                 target_client_sock.send(sendint(len(msg_encrypted)))
                 target_client_sock.send(msg_encrypted)
-                # with open(chat_history_path, mode) as f:                                # record the chat message on the server
+                # with open(chat_history_path, mode) as f:                              # record the chat message on the server
                 #     f.write(f"{datetime.now()}, PM, {get_key(address, clients)} sends {get_key(target_client, clients)}: {msg_encrypted}" + '\n')
-                sock.send(sendint(1))
+                sock.send(sendint(1)) 
             else:
-                sock.send(sendint(0))      
+                sock.send(sendint(0)) 
+                continue                
             continue
             
         elif operation == 'CH':  
-            with open(chat_history_path, 'rb') as f:     # read file content
+            with open(chat_history_path, 'r+') as f:     # read file content
                 # reads = f.readlines()          # read the bytes from the file
                 # for read in reads:
                 # while True:
-                data = f.read(BUFFER)
-                if not data:
-                    break                 
-                sock.sendall(data)  
+                data = f.readlines()
+                for i in data:               
+                    sock.sendall(i.encode())  
             continue
 
         elif operation == 'EX':
@@ -264,10 +267,13 @@ if __name__ == '__main__':
     # TODO: Validate input arguments
    
     PORT = sys.argv[1]
+
     # A list to record clients
     clients = {}
+
     # create a dictionary to keep track of conn sockets
     sockets = {}
+
     # Create a dict to hold public keys from clients
     client_pub_keys = {}
 

@@ -71,10 +71,12 @@ def accept_messages():
                 sys.exit()
 
             if type == "BM":
-                print(f"\n**** Received a public message ****: {msg.decode()}")
+                print(f"\n**** Received a public message ****: {msg.decode()}", flush=True)
             else:
                 msg_encrypt = decrypt(msg)
-                print(f"\n**** Received a private message ****: {msg_encrypt.decode()}")
+                print(f"\n**** Received a private message ****: {msg_encrypt.decode()}", flush=True)
+
+            print("Please enter your operation (BM: Broadcast Messaging, PM: Private Messaging, CH: Chat History, EX: Exit):", flush=True)
 
 
 
@@ -189,7 +191,7 @@ if __name__ == '__main__':
     # TODO: use a loop to handle the operations (i.e., BM, PM, EX)
     while True:         
         # Prompt client to send operations
-        operation = input("Please enter your operation (BM: Broadcast Messaging, PM: Private Messaging, CH: Chat History, EX: Exit): ")
+        operation = input("Please enter your operation (BM: Broadcast Messaging, PM: Private Messaging, CH: Chat History, EX: Exit): \n")
         sock.send(sendint(len(operation)))
         sock.send(operation.encode())
 
@@ -213,7 +215,7 @@ if __name__ == '__main__':
                     sys.exit()
                 server_receiving_msg_response = receiveint(server_receive_ack)  
                 if server_receiving_msg_response == 2:                       # verify whether the server has received the message
-                    print("Public message sent.")
+                    print("Public message sent. \n")
             else:
                 print("Cannot connect with the server.")
             continue 
@@ -257,24 +259,26 @@ if __name__ == '__main__':
             pm_response = receiveint(pm_ack)
 
             if pm_response == 1:                                # print the response from the server
-                print("Private message has been sent.")
+                print("Private message has been sent. \n")
             else:
-                print("Target client is not online, failed to send the message!")
+                print("Target client is not online, failed to send the message! \n")
             continue
 
         elif operation == 'CH':
             file_path = os.path.join(os.getcwd(), f"{username}_client.txt")
-            with open(file_path, "w") as f:            # write data to the file
+            mode = 'r+' if os.path.exists(file_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
+            with open(file_path, mode) as f:                # write data to the file
                 # while True:
                 data = sock.recv(BUFFER)
                 if not data:
                     break
                 f.write(data.decode())
             
-            with open(file_path, 'r') as f:             # get and print data from the file
-                lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
+            print("Here is the chat History from server: \n")
+            with open(file_path, mode) as f:                # get and print data from the file
+                lines = f.readlines()                       # Example lines: ["Ann, 12345\n", "John, 54231\n"]
                 for line in lines:
-                    print(line + '\n')
+                    print(line)
             continue
             
         elif operation == 'EX':

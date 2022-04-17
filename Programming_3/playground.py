@@ -21,5 +21,10 @@
 # l = ['123', '456', '789']
 # ss = " ".join(l)
 
-# print(ss)
-print(1400 % 232)
+m = {"john" : "ss"}
+m.update({"john" : "ss"})
+m.update({"john" : "mm"})
+m.update({'run' : 'ss'})
+ll = {item[0] : item[1] for item in m.items() if item[0] != 'run'}
+print(ll)
+# print(ll)
