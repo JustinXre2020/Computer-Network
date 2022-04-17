@@ -46,14 +46,11 @@ Args:
 Returns:
     None
 """
-def chatroom (sockets, clients, address):
+def chatroom (sockets, clients, address, client_keys):
     # Task1: login/register the user
 
     # Get the socket
     sock = sockets.get(address)
-
-    # Create a dict to hold public keys from clients
-    client_keys = {}
 
     # Receive client's username
     try:
@@ -85,7 +82,7 @@ def chatroom (sockets, clients, address):
         data_list = [data for list in nested_list for data in list]
 
         # See if the username is in the file
-        if len(data_list == 0) or username not in data_list:        # Registration process
+        if len(data_list) == 0 or username not in data_list:        # Registration process
             f.write(username + ',')                                 # Write down the username
             sock.send(sendint(1))                                   # Inform user to create a password
             sock.send(key)                                          # Send server's public key to client
@@ -102,7 +99,8 @@ def chatroom (sockets, clients, address):
                 print("Receive client's created password error!")
                 sys.exit()
             # decrypt the client's password
-            password = decrypt(password_msg)    
+            # password = decrypt(password_msg) 
+            password = password_msg.decode()   
 
             f.write(password + '\n')            # write down the password
 
@@ -111,12 +109,10 @@ def chatroom (sockets, clients, address):
             sock.send(sendint(len(msg)))
             sock.send(msg.encode())
    
-            # create chat history file for each user
-            with open(chat_history_path, mode) as f:                    
-                pass   
         else:
             # Inform user to type in the password
             sock.send(sendint(-1))
+            sock.send(key)                                          # Send server's public key to client
 
             # If the password is wrong, go into the loop until client types in the correct password
             while True:
@@ -132,7 +128,8 @@ def chatroom (sockets, clients, address):
                     print("Receive password error!")
                     sys.exit()
                 # decrypt the client's password
-                password = decrypt(password_msg)       
+                password = decrypt(password_msg).decode()
+                # password = password_msg.decode()       
 
                 # Check the password, if not in the file, inform it to the user
                 if password not in data_list:
@@ -190,15 +187,20 @@ def chatroom (sockets, clients, address):
                     sockets.get(i).send("BM".encode())             # tell the type of the message
                     sockets.get(i).send(sendint(len(msg)))
                     sockets.get(i).send(msg.encode())              # broadcast the message
+
+                    mode = 'r+' if os.path.exists(chat_history_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
                     with open(chat_history_path, mode) as f:       # record the chat message on the server
                         f.write(f"{datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg}" + '\n')
             sock.send(sendint(2))                                  # send confirmation to the client
             continue
 
         elif operation == 'PM':
-            online_clients = " ".join(clients.keys())
+            other_clients = clients
+            other_clients.pop(get_key(address, clients))                                # remove the current user
+            online_clients = " ".join(other_clients.keys())                             # from the list of users 
             sock.send(sendint(len(online_clients)))
-            sock.send(online_clients.encode())
+            sock.send(online_clients.encode())                                          # send the list as a string
+            
             try:
                 target_client_size = sock.recv(4)
             except socket.error as e:
@@ -212,8 +214,7 @@ def chatroom (sockets, clients, address):
             target_client = target_client.decode()
 
             target_key = client_keys.get(target_client)
-            sock.send(len(target_key))
-            sock.send(target_key)                                                       # send the public key of the target client
+            sock.send(target_key)                                                      # send the public key of the target client
 
             try:
                 msg_size = sock.recv(4)
@@ -240,12 +241,11 @@ def chatroom (sockets, clients, address):
             
         elif operation == 'CH':  
             with open(chat_history_path, 'rb') as f:     # read file content
-                while True:
-                    bytes_read = f.read(BUFFER)          # read the bytes from the file
-                    if not bytes_read:
-                        break                            # file transmitting is done
-                    sock.sendall(bytes_read)  
+                reads = f.readlines()          # read the bytes from the file
+                for read in reads:                 
+                    sock.sendall(read)  
             continue
+
         elif operation == 'EX':
             sock.close()
             # Update the list of clients and the dictionary of sockets
@@ -264,6 +264,8 @@ if __name__ == '__main__':
     clients = {}
     # create a dictionary to keep track of conn sockets
     sockets = {}
+    # Create a dict to hold public keys from clients
+    client_pub_keys = {}
 
     # TODO: create a socket in UDP or TCP
     try:
@@ -294,5 +296,5 @@ if __name__ == '__main__':
 
         # TODO: initiate a thread for the connected user
         sockets.update({addr : conn})
-        chat = threading.Thread(target=chatroom, args=(sockets, clients, addr), daemon=True)  # daemon = True will release memory after use
+        chat = threading.Thread(target=chatroom, args=(sockets, clients, addr, client_pub_keys), daemon=True)  # daemon = True will release memory after use
         chat.start()

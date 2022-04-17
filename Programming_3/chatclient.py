@@ -48,40 +48,33 @@ def accept_messages():
         # should thread be closed
         if openThread == False:
             break
+
         # Try to receive messages type
         try:
             type = sock.recv(2)
         except socket.error as e:
             print("Receive size of operation error!", flush=True)
             sys.exit()
+        type = type.decode()
 
-        # Try to receive messages
-        try:
-            msg_length = sock.recv(4)
-        except socket.error as e:
-            print("Receive size of operation error!", flush=True)
-            sys.exit()
-        try:
-            msg = sock.recv(msg_length)
-        except socket.error as e:
-            print("Receive size of operation error!", flush=True)
-            sys.exit()
+        if type == 'PM' or type == 'BM':
+            # Try to receive messages
+            try:
+                msg_length = sock.recv(4)
+            except socket.error as e:
+                print("Receive size of operation error!", flush=True)
+                sys.exit()
+            try:
+                msg = sock.recv(receiveint(msg_length))
+            except socket.error as e:
+                print("Receive size of operation error!", flush=True)
+                sys.exit()
 
-        if type.decode() == "BM":
-            # Check if the message is an int 
-            try:
-                message = receiveint(msg)
-                print(f"Received a public message: {message}", flush = True)
-            except TypeError as e:
-                print(f"Received a public message: {msg.decode()}", flush = True)
-        else:
-            # Check if the message is an int 
-            msg = decrypt(msg)
-            try:
-                message = receiveint(msg)
-                print(f"Received a private message: {message}", flush = True)
-            except TypeError as e:
-                print(f"Received a private message: {msg.decode()}", flush = True)
+            if type == "BM":
+                print(f"\n**** Received a public message ****: {msg.decode()}", flush = True)
+            else:
+                msg_encrypt = decrypt(msg)
+                print(f"\n**** Received a private message ****: {msg_encrypt.decode()}", flush = True)
 
 
 
@@ -90,6 +83,7 @@ if __name__ == '__main__':
     
     hostname = sys.argv[1]
     PORT = sys.argv[2]
+    username = sys.argv[3]
 
     # Find the host by its name and create host's address
     try:
@@ -115,12 +109,11 @@ if __name__ == '__main__':
         print("Connection failed!")
         sys.exit()
 
-    print("Connection to server established")
+    print("Connection to server established!")
     
     
 
     # TODO: Send username to the server and login/register the user
-    username = input("Please enter your username: ")
     sock.send(sendint(len(username)))
     sock.send(username.encode())
 
@@ -143,8 +136,9 @@ if __name__ == '__main__':
     if response == 1:
         print('Your username has been successfully created!')   # Prompt user to create a password
         password = input("Now please create your password: ")
-        sock.send(sendint(len(password)))
-        sock.send(encrypt(password.encode(), server_key))                # encrypt the password using server's pubKey
+        encrypted_password = encrypt(password.encode(), server_key)
+        sock.send(sendint(len(encrypted_password)))
+        sock.send(encrypted_password)                           # encrypt the password using server's pubKey
 
         # Receive and print server's reponse
         try:
@@ -162,8 +156,9 @@ if __name__ == '__main__':
         while True:
             # Type in password
             password = input("Please type in your password: ")
-            sock.send(sendint(len(password)))
-            sock.send(encrypt(password.encode(), server_key))
+            encrypted_password = encrypt(password.encode(), server_key)
+            sock.send(sendint(len(encrypted_password)))
+            sock.send(encrypted_password)
 
             # Receive server's response on password
             try:
@@ -179,10 +174,10 @@ if __name__ == '__main__':
             else:
                 print("Wrong password!")
 
-            # Inform client that the account has been logged in
+        # Inform client that the account has been logged in
         print("You successfully log into your account!")
 
-     # Send client's public key to server
+    # Send client's public key to server
     sock.send(key)
 
 
@@ -208,7 +203,7 @@ if __name__ == '__main__':
             bm_response = receiveint(bm_ack)
 
             if bm_response == 1:                                            # receive an acknowledgement from the server                             
-                message_broadcasting = input("Enter the public message:")   
+                message_broadcasting = input("Enter the public message:  ")   
                 sock.send(sendint(len(message_broadcasting)))               
                 sock.send(message_broadcasting.encode())                    # send the message to the server
                 try:
@@ -237,26 +232,22 @@ if __name__ == '__main__':
             client = client.decode().split()
             print("Peers Online: \n")
             for i in client:
-                print(i+'\n')
+                print(i + '\n')
             
-            target_client = input("Peer to message: ")          # choose which client we want to send private message to
+            target_client = input("Peer to message:  ")         # choose which client we want to send private message to
             sock.send(sendint(len(target_client)))
             sock.send(target_client.encode())
-
-            try:                                                # receive the target client's public key
-                key_size = sock.recv(4)                         
-            except socket.error as e:
-                print("Receive size of client's message error!")
-                sys.exit()                                         
+                                   
             try:
-                key = sock.recv(receiveint(key_size))               
+                key = sock.recv(BUFFER)                         # receive the target client's public key          
             except socket.error as e:
                 print("Receive client message error!")              
                 sys.exit()
 
             msg = input("Enter the private mesage: ")           # the content of private message
-            sock.send(sendint(len(msg)))
-            sock.send(encrypt(msg.encode(), key))
+            encrypt_msg = encrypt(msg.encode(), key)
+            sock.send(sendint(len(encrypt_msg)))
+            sock.send(encrypt_msg)
 
             try:
                 pm_ack = sock.recv(4)
@@ -272,22 +263,22 @@ if __name__ == '__main__':
             continue
 
         elif operation == 'CH':
-            # file_path = os.path.join(os.getcwd(), f"{username}.txt")
-            # with open(file_path, "w") as f:            # write data to the file
-            chat_his = []
-            while True:
+            file_path = os.path.join(os.getcwd(), f"{username}_client.txt")
+            with open(file_path, "w") as f:            # write data to the file
+                # while True:
                 data = sock.recv(BUFFER)
                 if not data:
                     break
-                chat_his.append(data.decode())
+                f.write(data.decode())
             
-            for i in chat_his:
-                print(i)
+            # for i in chat_his:
+            #     print(i)
+            # continue
+            with open(file_path, 'r') as f:             # get and print data from the file
+                lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
+                for line in lines:
+                    print(line + '\n')
             continue
-            # with open(file_path, 'r') as f:             # get and print data from the file
-            #     lines = f.readlines()                   # Example lines: ["Ann, 12345\n", "John, 54231\n"]
-            #     for line in lines:
-            #         print(line + '\n')
             
         elif operation == 'EX':
             openThread = False
