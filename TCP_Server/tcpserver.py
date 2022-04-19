@@ -1,16 +1,3 @@
-# IS496: Computer Networks (Spring 2022)
-# Programming Assignment 2 - Starter Code
-# Name and Netid of each member:
-
-# Member 1: Justin Xiao - xulongx2
-# Member 2: Jerry Guo - zemingg2
-# Member 3: Tiancheng Shi - ts15 
-
-# Note: 
-# This starter code is optional. Feel free to develop your own solution to Part 1. 
-# The finished code for Part 1 can also be used for Part 2 of this assignment. 
-
-
 # Import any necessary libraries below
 import socket
 import sys
@@ -33,12 +20,12 @@ def receiveint(data):
 
 def part1 ():
     print("********** PART 1 **********")
-    # TODO: fill in the IP address of the host and the port number
+    # Get the IP address of the host and the port number
     HOST = socket.gethostbyname("student00.ischool.illinois.edu")
     PORT = 41008
     sin = (HOST, PORT)
 
-    # TODO: create a datagram socket for TCP
+    # Create a datagram socket for TCP
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     except socket.error as e:
@@ -46,7 +33,7 @@ def part1 ():
         sys.exit()
 
 
-    # TODO: Bind the socket to address
+    # Bind the socket to address
     try:
         sock.bind(sin)
     except socket.error as e:
@@ -57,12 +44,12 @@ def part1 ():
 
     print("Waiting ...")
 
-    # TODO: start listening 
+    # Start listening 
 
     sock.listen()
     
 
-    # TODO: accept the connection and record the address of the client socket
+    # Accept the connection and record the address of the client socket
 
 
     try:
@@ -71,7 +58,7 @@ def part1 ():
         print("Nothing accepts.")
 
 
-    # TODO: receive message from the client 
+    # Receive message from the client 
 
     # Receive size of message
     try:
@@ -89,13 +76,13 @@ def part1 ():
         sys.exit()
 
 
-    # TODO: print the message to the screen
+    # Print the message to the screen
 
 
     print(f"Message from client: {msg.decode()}")
 
 
-    # TODO: send an acknowledgement (e.g., interger of 1) to the client
+    # Send an acknowledgement (e.g., interger of 1) to the client
 
 
     try:
@@ -105,7 +92,7 @@ def part1 ():
         sys.exit()
 
 
-    # TODO: close the socket
+    # Close the socket
 
 
     try:
@@ -122,7 +109,6 @@ def part1 ():
 
 ############## Beginning of Part 2 ##############
 
-# main function for Part 2
 def part2 ():
     print("********** PART 2 **********")  
 
