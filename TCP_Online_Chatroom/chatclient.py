@@ -271,6 +271,7 @@ if __name__ == '__main__':
             while key_from_server == "":           
                 if key_from_server != "":
                     break
+            print("Your private message will be encrypted!")
 
             msg = input("Enter the private mesage: ")           # the content of private message
             encrypt_msg = encrypt(msg.encode(), key_from_server)

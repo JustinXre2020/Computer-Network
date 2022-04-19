@@ -208,15 +208,20 @@ def chatroom (sockets, clients, address, client_keys):
                 print("Receive client message error!")              
                 sys.exit()
         
-            for i in sockets.keys():                               # loop over all the client sockets
-                if i != address:                                   # except the sender client itself                  
-                    sendtoClient(sockets.get(i), "BM", msg)        # broadcast the message
+            for addr in sockets.keys():                               # loop over all the client sockets
+                if addr != address:                                   # send the message except the sender himself                  
+                    sendtoClient(sockets.get(addr), "BM", msg)        # broadcast the message
 
                     # use "a+" rather than "r+" because we only need to 
                     # write data down on the file
-                    mode = 'a+' if os.path.exists(chat_history_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
-                    with open(chat_history_path, mode) as f:       # record the chat message on the server
-                        f.write(f"At {datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg.decode()} \n")
+                    mode_sender = 'a+' if os.path.exists(chat_history_path) else 'w+'          # set mode (only append (a+) or create the file (w+))
+                    with open(chat_history_path, mode_sender) as f:             # record the chat message for the sender
+                        f.write(f"At {datetime.now()}, {get_key(address, clients)} sends {get_key(addr, clients)} a BM message: {msg.decode()} \n")
+
+                    receiver_chat_history = f"{get_key(addr, clients)}.txt"
+                    mode_receiver = 'a+' if os.path.exists(receiver_chat_history) else 'w+' 
+                    with open(receiver_chat_history, mode_receiver) as f:       # record the chat message for the receiver
+                        f.write(f"At {datetime.now()}, {get_key(addr, clients)} receives a BM message from {get_key(address, clients)}: {msg.decode()} \n")
             
             # send confirmation to the client
             sendtoClient(sock, "Confirmation", "Public message sent!")                   
