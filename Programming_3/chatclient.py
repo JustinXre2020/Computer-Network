@@ -92,7 +92,7 @@ def accept_messages():
 
         elif types == "LIST":
             global lists
-            lists = msg.decode().split()
+            lists = msg.decode().split()        # a list of active clients
             print("Peers Online: \n")
             for i in lists:
                 print(i + '\n')
