@@ -3,8 +3,6 @@ import socket
 import sys
 
 
-
-
 # TODO: define a buffer size for the message to be read from the UDP socket
 BUFFER = 2048
 
