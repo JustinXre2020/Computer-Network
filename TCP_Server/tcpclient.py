@@ -1,16 +1,3 @@
-# IS496: Computer Networks (Spring 2022)
-# Programming Assignment 2 - Starter Code
-# Name and Netid of each member:
-
-# Member 1: Justin Xiao - xulongx2
-# Member 2: Jerry Guo - zemingg2
-# Member 3: Tiancheng Shi - ts15
-
-# Note: 
-# This starter code is optional. Feel free to develop your own solution to Part 1. 
-# The finished code for Part 1 can also be used for Part 2 of this assignment. 
-
-
 # Import any necessary libraries below
 import socket
 import sys
@@ -33,19 +20,19 @@ def receiveint(data):
 
 
 def part1 ():
-    # TODO: fill in the hostname and port number
+    # Fill in the hostname and port number
     hostname = "student00.ischool.illinois.edu"
     PORT = 41008
 
     # A dummy message (in bytes) to test the code
     message = "Hello World"
 
-    # TODO: convert the host name to the corresponding IP address
+    # Convert the host name to the corresponding IP address
     HOST = socket.gethostbyname(hostname)
     sin = (HOST, PORT)
 
 
-    # TODO: create a datagram socket for TCP
+    # Create a datagram socket for TCP
     try:
         sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     except socket.error as e:
@@ -53,7 +40,7 @@ def part1 ():
         sys.exit()
 
 
-    # TODO: connect to the server
+    # Connect to the server
 
     try:
         sock.connect(sin)
@@ -62,7 +49,7 @@ def part1 ():
         sys.exit()
 
 
-    # TODO: send the message to the server
+    # Send the message to the server
 
     # Send the size of message first
     try:
@@ -79,7 +66,7 @@ def part1 ():
         sys.exit()
 
 
-    # TODO: receive the acknowledgement from the server
+    # Receive the acknowledgement from the server
 
 
     try:
@@ -89,13 +76,13 @@ def part1 ():
         sys.exit()
 
 
-    # TODO: print the acknowledgement to the screen
+    # Print the acknowledgement to the screen
 
 
     print(f"Acknowledgement: {receiveint(data)}\n") 
 
 
-    # TODO: close the socket
+    # Close the socket
 
 
     try:
@@ -113,7 +100,6 @@ def part1 ():
 ############## Beginning of Part 2 ##############
 
 
-# main function for Part 2
 def part2 ():
     print("********** PART 2 **********")
 
