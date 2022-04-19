@@ -14,7 +14,6 @@
 import socket
 import threading 
 import sys
-import os
 from pg3lib import *
 
 # Any global variables
