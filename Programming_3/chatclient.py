@@ -89,7 +89,6 @@ def accept_messages():
         elif types == 'key':
             global key_from_server
             key_from_server = msg
-            # print(f"*{key_from_server}*", flush=True)
 
         elif types == "LIST":
             global lists
@@ -262,8 +261,13 @@ if __name__ == '__main__':
             while lists == "":           
                 if lists != "":
                     break
+            
+            while True:
+                target_client = input("Peer to message:  ")         # choose which client we want to send private message to
+                if target_client in lists:
+                    break                                           # If the target client not in lists, back to input
+                print("Invalid client!")
 
-            target_client = input("Peer to message:  ")         # choose which client we want to send private message to
             sock.send(sendint(len(target_client)))
             sock.send(target_client.encode())
 
