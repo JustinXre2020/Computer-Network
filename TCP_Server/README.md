@@ -1,5 +1,3 @@
-
-
 # Contributors
 
 	Justin Xiao     xulongx2
