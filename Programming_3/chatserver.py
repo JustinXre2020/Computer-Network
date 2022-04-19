@@ -44,8 +44,9 @@ def sendtoClient(sock, type, message):
     sock.send(sendint(len(type)))
     sock.send(type.encode())
     sock.send(sendint(len(message)))
-
-    if type == "key" or type == "BM" or type == "PM":
+    
+    # these three have binary messages
+    if type == "key" or type == "BM" or type == "PM":       
         sock.send(message)
     else:
         sock.send(message.encode())
@@ -87,6 +88,9 @@ def chatroom (sockets, clients, address, client_keys):
 
     userinfo_path = os.path.join(os.getcwd(), user_info)            # generate userinfo path
     chat_history_path = os.path.join(os.getcwd(), chat_history)     # generate chat history path
+
+    # use "r+" rather than "a+" because we need to 
+    # read first and then write data down on the file
     mode = 'r+' if os.path.exists(userinfo_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
                                                                     # based on the existance of userinfo     
 
@@ -208,9 +212,11 @@ def chatroom (sockets, clients, address, client_keys):
                 if i != address:                                   # except the sender client itself                  
                     sendtoClient(sockets.get(i), "BM", msg)        # broadcast the message
 
-                    mode = 'r+' if os.path.exists(chat_history_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
+                    # use "a+" rather than "r+" because we only need to 
+                    # write data down on the file
+                    mode = 'a+' if os.path.exists(chat_history_path) else 'w+'          # set mode (only read/write (r+) or create the file (w+))
                     with open(chat_history_path, mode) as f:       # record the chat message on the server
-                        f.write(f"At {datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg.decode()}\n")
+                        f.write(f"At {datetime.now()}, BM, {get_key(address, clients)} sends {get_key(i, clients)}: {msg.decode()} \n")
             
             # send confirmation to the client
             sendtoClient(sock, "Confirmation", "Public message sent!")                   
@@ -262,6 +268,8 @@ def chatroom (sockets, clients, address, client_keys):
             
         elif operation == 'CH': 
             if os.path.exists(chat_history_path): 
+                # use "r+" rather than "a+" because we only need to 
+                # read the date on the file
                 with open(chat_history_path, "r+") as f:     # read chat history
                     data = f.readlines()                     # read as a list of strings
                     for i in data:    
