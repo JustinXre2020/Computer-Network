@@ -1,10 +1,9 @@
 # Contributors
+--Justin Xiao 		xulongx2
 
-  Justin Xiao 		xulongx2
+--Jerry Guo 		zemingg2
 
-  Jerry Guo 		zemingg2
-
-  Tiancheng Shi 	ts15
+--Tiancheng Shi 	ts15
 
 
 
