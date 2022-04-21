@@ -1,18 +1,3 @@
-# IS496: Computer Networks (Spring 2022)
-# Programming Assignment 1 -  Starter Code 
-# Name and Netid of each member:
-
-# Member 1: Justin Xiao, xulongx2
-# Member 2: Jerry Guo, zemingg2
-# Member 3: Tiancheng Shi, ts15
-
-
-# Note: 
-# This starter code is optional. Feel free to develop your own solution to Part 1. 
-# The finished code for Part 1 can also be used for Part 2 of this assignment. 
-
-
-
 # Import any necessary libraries below
 import socket
 import sys, struct
