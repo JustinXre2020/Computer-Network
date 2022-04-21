@@ -44,35 +44,44 @@ Functions include:
 
 ## chatclient.py
 ```
-It contains functions that build the connection with the server, and implementing operations like Broadcast Messaging(BM), Private Messaging(PM), and Close Socket for specific client(EX).
+It contains functions that build the connection with the server, and implementing operations like Broadcast Messaging(BM), Private Messaging(PM), View Chat History(CH), and Close Socket for specific client(EX).
 ```
+Global variables:
+- BUFFER
+- openThread
+- key_from_server
+- confirmation
+- lists
+- done_CH 
 
 Functions include:
 - sendint(data) : parse int into byte
 - receiveint(data): parse byte into int
 - accept_message(): the subthread that handles any incoming message from the server.
-
+  - The subthread will take two things
+    - Type of the message, including "BM", "PM", "LIST", "key", "CH" and "Confirmation".
+      - Based on different types of the message, client would perform different operations to the content of the message.
+    - The message content.
+   
 Client features:
   - BM:
     - Client sends operation (BM) to broadcast a message to all active clients.
     - Client sends the broadcast message to the server.
-    - Client receives the confirmation.
-    - Client and server return to "prompt user for operation" and "wait for operation from client" state, respectively.
+    - Client receives the confirmation from the server.
   - PM:
     - Client sends operation (PM) to leave a message to a specific client.
     - Client receives the list of online users from the server.
-    - Client prompts the user for the username (of the target user) to send a message to, and the message to be sent.
-    - Client sends the username and the message to the server.
+    - Client prompts the user for the username (of the target user) to send a message to, and sends the username to the server.
+    - Then receives the public key of that user.
+    - Client writes down the message, encrypts it using the public key just received and then send it to the server.
     - Client receives the confirmation from the server.
-    - Client and server return to "prompt user for operation" and "wait for operation from client" state, respectively.
   - CH:
     - sends operation (CH) to view the chat history.
     - receives and then displays the chat history on the screen.
-    - Client and server return to "prompt user for operation" and "wait for operation from client" state, respectively.
   - EX:
     - Client sends operation (EX) to close its connection with the server and end the program.
-    - Client closes the socket and exit.
-    - After performing one of the BM, PM or CH operation, client returns to "perform user for input" state.
+    - Client closes the socket, joins the subthread and then exits.
+  - After performing one of the BM, PM or CH operation, client returns to "perform user for input" state.
   
 # To run/test the code:
 
