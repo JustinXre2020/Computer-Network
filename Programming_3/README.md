@@ -70,9 +70,9 @@ Client features:
     - receives and then displays the chat history on the screen.
     - Client and server return to "prompt user for operation" and "wait for operation from client" state, respectively.
   - EX:
-    	- Client sends operation (EX) to close its connection with the server and end the program.
-    	- Client closes the socket and exit.
-    	- After performing one of the BM, PM or CH operation, client returns to "perform user for input" state.
+    - Client sends operation (EX) to close its connection with the server and end the program.
+    - Client closes the socket and exit.
+    - After performing one of the BM, PM or CH operation, client returns to "perform user for input" state.
   
 # To run/test the code:
 
