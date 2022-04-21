@@ -1,9 +1,9 @@
 # IS496: Computer Networks (Spring 2022)
 # Programming Assignment 3 - Starter Code
 # Name and Netid of each member:
-# Member 1: 
-# Member 2: 
-# Member 3: 
+# Member 1: Justin Xiao - xulongx2
+# Member 2: Jerry Guo - zemingg2
+# Member 3: Tiancheng Shi - ts15
 
 
 # Note: 
